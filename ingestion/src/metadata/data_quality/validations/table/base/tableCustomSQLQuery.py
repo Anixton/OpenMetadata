@@ -51,9 +51,16 @@ class BaseTableCustomSQLQueryValidator(BaseTestValidator):
             str,
         )
 
-        threshold = self.get_test_case_param_value(
+        min_threshold = self.get_test_case_param_value(
             self.test_case.parameterValues,  # type: ignore
-            "threshold",
+            "minThreshold",
+            int,
+            default=0,
+        )
+
+        max_threshold = self.get_test_case_param_value(
+            self.test_case.parameterValues,  # type: ignore
+            "maxThreshold",
             int,
             default=0,
         )
@@ -65,7 +72,8 @@ class BaseTableCustomSQLQueryValidator(BaseTestValidator):
         )
 
         sql_expression = cast(str, sql_expression)  # satisfy mypy
-        threshold = cast(int, threshold)  # satisfy mypy
+        min_threshold = cast(int, min_threshold)  # satisfy mypy
+        max_threshold = cast(int, max_threshold)  # satisfy mypy
         strategy = cast(Strategy, strategy)  # satisfy mypy
 
         try:
@@ -81,7 +89,7 @@ class BaseTableCustomSQLQueryValidator(BaseTestValidator):
                 [TestResultValue(name=RESULT_ROW_COUNT, value=None)],
             )
         len_rows = rows if isinstance(rows, int) else len(rows)
-        if len_rows <= threshold:
+        if min_threshold <= len_rows <= max_threshold:
             status = TestCaseStatus.Success
             result_value = len_rows
         else:
